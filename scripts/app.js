@@ -1,93 +1,157 @@
-const addTaskBtn = document.querySelector("#add-task");
-const displayTaskLi = document.querySelector("#tasks");
-displayTaskLi.innerHTML = "";
+// Selecting DOM elements
+const addTaskBtn = document.querySelector("#add-task"); // Button to add a new task
+const taskListContainer = document.querySelector("#tasks"); // Container to display tasks
+taskListContainer.innerHTML = ""; // Initial clear for task display
 
-// display task
-const displayTask = document.querySelector("#tasks");
-
-// Initialize taskArr with stored tasks or as an empty array
+// Initialize taskList with stored tasks from local storage or as an empty array
 let taskList = JSON.parse(localStorage.getItem("tasks")) || [];
 
-// class for Task object
-
+// Task class to create new task objects
 class Task {
   constructor(taskNameValue, taskCategoryValue) {
-    this.taskName = taskNameValue;
-    this.taskCategory = taskCategoryValue;
+    this.taskName = taskNameValue; // Task name
+    this.taskCategory = taskCategoryValue; // Task category
+    this.progress = "pending"; // Task progress status
   }
 }
 
-// check input value is valid or not
-
+// Function to validate task name and category inputs
 function validateTask(taskNameValue, taskCategoryValue) {
-  const regex = /^[a-zA-Z0-9]/;
+  const regex = /^[a-zA-Z0-9]/; // Regular expression to check for a valid starting character
 
-  // check's if the Task Name & Task category  value is Empty
-
+  // Check if task name or category is empty
   if (taskNameValue.trim() === "" || taskCategoryValue.trim() === "") {
     alert("Please fill in both inputs");
     return false;
   }
 
-  // check if there are symbol at the first Chracter of Task name value;
+  // Ensure task name doesn't start with a symbol
   if (!regex.test(taskNameValue)) {
     alert("The first character of the task name cannot be a symbol.");
     return false;
   }
-  // check if there are symbol at the first Chracter of Task name value;
+
+  // Ensure task category doesn't start with a symbol
   if (!regex.test(taskCategoryValue)) {
     alert("The first character of the task category cannot be a symbol.");
     return false;
   }
 
-  // return True if the Values meet all aspect of validation
-  else {
-    return true;
-  }
+  // Return true if all validation checks pass
+  return true;
 }
 
+// Save the current task list to local storage
 function saveTaskToLocalStorage() {
   localStorage.setItem("tasks", JSON.stringify(taskList));
 }
+
+// Display all tasks on initial load
 displayAllTasks();
-// add Task to the memory which is Array,object and localStorage
+
+// Clear input fields
+function clearInputFields() {
+  document.querySelector("#task-name").value = "";
+  document.querySelector("#task-category").value = "";
+}
+
+// Function to add a new task to taskList and save to local storage
 function addTask() {
-  // input values
+  // Retrieve input values
   const taskNameValue = document.querySelector("#task-name").value;
   const taskCategoryValue = document.querySelector("#task-category").value;
-  // validateTask function return value  accordiong to the validation
-  const isValid = validateTask(taskNameValue, taskCategoryValue);
-  console.log(taskNameValue, taskCategoryValue);
 
-  console.log(isValid);
-  // if the the validateTAsk function return true then this code create a object and push it to the array
+  // Validate input values
+  const isValid = validateTask(taskNameValue, taskCategoryValue);
+
+  // If input is valid, create a task and add to taskList array
   if (isValid) {
     const task = new Task(taskNameValue, taskCategoryValue);
-    console.log(task);
-    taskList.push(task);
-    console.log(taskList);
+    taskList.push(task); // Add new task to array
+    saveTaskToLocalStorage(); // Save updated array to local storage
+    displayAllTasks(); // Refresh task display
   }
-  // after adding to the array the store to the localstorage
-  saveTaskToLocalStorage();
+  clearInputFields();
 }
 
+// Function to display all tasks from taskList
 function displayAllTasks() {
-  // remove li before display the content
-  displayTaskLi.innerHTML = "";
-  //check is there any task is present in the array if not then print No todo
+  taskListContainer.innerHTML = ""; // Clear existing tasks
+  let taskHTML = ""; // Build the HTML string
+  
   if (taskList.length === 0) {
-    displayTaskLi.innerHTML = "<p> No TO-DO task </p>";
+    taskHTML = "<p> No TO-DO task </p>";
   } else {
-    //display content
     taskList.forEach((val, index) => {
-      const displayTask = `<li><span class="Serial-num">${++index}</span><span class="display-task-name">${
-        val.taskName
-      }</span><span class="display-task-category">${
-        val.taskCategory
-      }</span><button>Delete</button><button>Finished</button></li>`;
-      displayTaskLi.innerHTML += displayTask;
+      taskHTML += `<li id="list" data-id="${index}">
+                      <span class="display-task-name">${val.taskName}</span>
+                      <span class="display-task-category">${val.taskCategory}</span>
+                      <button class="task-complete-btn">Finished</button>
+                      <button class="delete-btn">Delete</button>
+                    </li>`;
     });
   }
+
+  taskListContainer.innerHTML = taskHTML; // Assign once after building HTML
+  isTaskFinished(); // Check if any tasks are completed
 }
 
+// Function to handle task deletion
+function deleteTask() {
+  taskListContainer.addEventListener("click", (event) => {
+    if (event.target.classList.contains("delete-btn")) {
+      const listItem = event.target.closest("li");
+      const dataIdOfList = listItem.getAttribute("data-id");
+
+      // Find index of task in array and remove it
+      const deleteTaskIndex = taskList.findIndex(
+        (_, idx) => idx === Number(dataIdOfList)
+      );
+      taskList.splice(deleteTaskIndex, 1); // Remove task from taskList array
+
+      saveTaskToLocalStorage(); // Save updated array to local storage
+      displayAllTasks(); // Refresh task display
+    }
+  });
+}
+
+// Function to mark a task as completed
+function taskCompleted() {
+  taskListContainer.addEventListener("click", (event) => {
+    if (event.target.classList.contains("task-complete-btn")) {
+      const listItem = event.target.closest("li");
+      const dataIdOfList = listItem.getAttribute("data-id");
+      
+      // Find the task in the taskList
+      const task = taskList[Number(dataIdOfList)];
+      
+      // Update task progress to 'complete'
+      task.progress = "complete";
+      
+      saveTaskToLocalStorage(); // Save updated task progress to local storage
+      listItem.classList.add("complete"); // Add 'complete' class to visually indicate completion
+    }
+  });
+}
+
+// Function to check if a task is marked as completed and update UI
+function isTaskFinished() {
+  taskList.forEach((task, index) => {
+    const listItem = document.querySelector(`[data-id="${index}"]`); // Select the task by its data-id
+    if (task.progress === "complete") {
+      if (listItem) {
+        listItem.classList.add("complete"); // Add 'complete' class to completed tasks
+      }
+    }
+  });
+}
+
+// Event listener to add a new task on button click
 addTaskBtn.addEventListener("click", addTask);
+
+// Initialize delete and task completion functionality
+deleteTask();
+taskCompleted();
+
+// Initial display of all tasks
+displayAllTasks();
