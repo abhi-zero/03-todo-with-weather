@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List with Weather</title>
+
+    <script defer src="./scripts/app.js"></script>
+</head>
+<body>
+    <h1>Advanced To-Do List</h1>
+    
+    <!-- Weather Section -->
+    <section id="weather">
+        <h2>Weather</h2>
+        <div id="weather-info">Loading weather...</div>
+    </section>
+
+    <!-- To-Do List Section -->
+    <section id="todo">
+        <h2>To-Do List</h2>
+
+        <!-- Task Input -->
+        <div id="task-input">
+            <input type="text" id="task-name" placeholder="Task name" />
+            <input type="text" id="task-category" placeholder="Category" />
+            <button id="add-task">Add Task</button>
+        </div>
+
+        <!-- Task List -->
+        <div id="task-list">
+            <h3>Tasks</h3>
+            <ul id="tasks"></ul>
+        </div>
+    </section>
+
+    
+</body>
+</html>
