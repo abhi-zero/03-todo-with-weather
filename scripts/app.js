@@ -2,6 +2,7 @@
 const addTaskBtn = document.querySelector("#add-task"); // Button to add a new task
 const taskListContainer = document.querySelector("#tasks"); // Container to display tasks
 taskListContainer.innerHTML = ""; // Initial clear for task display
+const getLocationBtn = document.querySelector("#location-btn")
 
 // Initialize taskList with stored tasks from local storage or as an empty array
 let taskList = JSON.parse(localStorage.getItem("tasks")) || [];
@@ -145,6 +146,72 @@ function isTaskFinished() {
     }
   });
 }
+
+// get location 
+
+function getLocation(){
+ if(navigator.geolocation){
+ navigator.geolocation.getCurrentPosition(showLocation, checkError);
+ }
+ else{
+  document.querySelector('#error').innerHTML = `<p>the browser doesn't support geolocation</p>`;
+ }
+}
+
+// check error  when the getting user location 
+function checkError(error){
+  if(error.PERMISSION_DENIED){
+    document.querySelector('#error').innerHTML = `<p>Please allow your location</p>`;
+  }
+  if(error.POSITION_UNAVALIABLE){
+    document.querySelector('#error').innerHTML = `<p>Location Information Unavaliable</p>`;
+  }
+  if(error.TIMEOUT){
+    document.querySelector('#error').innerHTML = `<p>The request to get user location time out</p>`;
+  }
+}
+
+async function showLocation(position) {
+  url = `https://api.opencagedata.com/geocode/v1/json?q=${position.coords.latitude}%2C${position.coords.longitude}&key=06d03ee8263b4effb12fa56848088b6f`;
+
+  try{
+    const response = await fetch(url);
+    if(!response.ok){
+      throw new Error("Failed to get Location");
+    }
+    const result = await response.json();
+   
+     console.log(result.results[0].components.county);
+     
+  }
+  catch(error){
+    console.error("error:",error);
+
+  }
+}
+
+// api call 
+
+async function showWeather(){
+  
+ const location = getLocation();
+  const url = `api.openweathermap.org/data/2.5/weather?q=${location}&APPID=216f52a6de75221e8233884c7d3439c5`;
+
+ try{
+  const response = await fetch(url);
+  if(!response.ok){
+    throw new Error("Failed to get Weather report")
+  }
+  const data = await response.json();
+  console.table(data);
+ }
+ catch(error){
+  console.error("error", error);
+ }
+
+}
+
+getLocationBtn.addEventListener("click", showWeather);
 
 // Event listener to add a new task on button click
 addTaskBtn.addEventListener("click", addTask);
