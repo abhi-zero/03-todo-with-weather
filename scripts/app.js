@@ -2,6 +2,7 @@
 const addTaskBtn = document.querySelector("#add-task"); // Button to add a new task
 const taskListContainer = document.querySelector("#tasks"); // Container to display tasks
 taskListContainer.innerHTML = ""; // Initial clear for task display
+const displayWeatherContainer = document.querySelector("#weather-info")
 const getLocationBtn = document.querySelector("#location-btn")
 
 // Initialize taskList with stored tasks from local storage or as an empty array
@@ -150,29 +151,43 @@ function isTaskFinished() {
 // get location 
 
 function getLocation(){
- if(navigator.geolocation){
- navigator.geolocation.getCurrentPosition(showLocation, checkError);
- }
- else{
-  document.querySelector('#error').innerHTML = `<p>the browser doesn't support geolocation</p>`;
- }
+  return new Promise((resolve, reject) => {
+    if(navigator.geolocation){
+      navigator.geolocation.getCurrentPosition(
+        (position) => resolve(position),
+        (error) => reject(error)
+      );
+     
+      }
+      else{
+        reject(new Error("The browser doesn't support geolocation"));
+      }
+  })
+
 }
 
 // check error  when the getting user location 
-function checkError(error){
-  if(error.PERMISSION_DENIED){
-    document.querySelector('#error').innerHTML = `<p>Please allow your location</p>`;
+function checkError(error) {
+  let errorMessage = "";
+  switch (error.code) {
+    case error.PERMISSION_DENIED:
+      errorMessage = "Please allow your location.";
+      break;
+    case error.POSITION_UNAVAILABLE:
+      errorMessage = "Location information unavailable.";
+      break;
+    case error.TIMEOUT:
+      errorMessage = "The request to get your location timed out.";
+      break;
+    default:
+      errorMessage = "An unknown error occurred.";
   }
-  if(error.POSITION_UNAVALIABLE){
-    document.querySelector('#error').innerHTML = `<p>Location Information Unavaliable</p>`;
-  }
-  if(error.TIMEOUT){
-    document.querySelector('#error').innerHTML = `<p>The request to get user location time out</p>`;
-  }
+  document.querySelector("#error").innerHTML = `<p>${errorMessage}</p>`;
 }
 
+
 async function showLocation(position) {
-  url = `https://api.opencagedata.com/geocode/v1/json?q=${position.coords.latitude}%2C${position.coords.longitude}&key=06d03ee8263b4effb12fa56848088b6f`;
+  const url = `https://api.opencagedata.com/geocode/v1/json?q=${position.coords.latitude}%2C${position.coords.longitude}&key=06d03ee8263b4effb12fa56848088b6f`;
 
   try{
     const response = await fetch(url);
@@ -180,38 +195,80 @@ async function showLocation(position) {
       throw new Error("Failed to get Location");
     }
     const result = await response.json();
-   
-     console.log(result.results[0].components.county);
-     
+
+    console.log(result)
+    const userLocation = result.results[0].components.state_district; ; 
+    console.log(userLocation);
+    
+    return userLocation;
   }
   catch(error){
     console.error("error:",error);
-
+    return null;
   }
 }
+
 
 // api call 
 
-async function showWeather(){
+async function showWeather(location){
   
- const location = getLocation();
-  const url = `api.openweathermap.org/data/2.5/weather?q=${location}&APPID=216f52a6de75221e8233884c7d3439c5`;
+  const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(location)}&APPID=216f52a6de75221e8233884c7d3439c5`;
+
 
  try{
   const response = await fetch(url);
-  if(!response.ok){
-    throw new Error("Failed to get Weather report")
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error("Invalid API key. Please check your OpenWeatherMap API key.");
+    } else if (response.status === 404) {
+      throw new Error(`Location not found: ${location}. Please check the location name.`);
+    } else if (response.status === 500) {
+      throw new Error(`Server Error.`);
+    } else {
+      throw new Error("Failed to get Weather report");
+    }
   }
+
+
   const data = await response.json();
-  console.table(data);
+  const weatherDescription = data.weather[0].description ;
+  const weatherIcon = data.weather[0].icon;
+  return {weatherDescription, weatherIcon}
+
  }
  catch(error){
-  console.error("error", error);
+  console.error(error);
+  return null;
  }
 
 }
 
-getLocationBtn.addEventListener("click", showWeather);
+function displayWeather(weather, location){
+  if(!weather){
+    displayWeatherContainer.innerHTML = `<p>Weather Data is not Avaliable</p>`
+                                       
+  }else{
+    displayWeatherContainer.innerHTML = ` <p>${weather.weatherIcon}</p>
+                                        <h2>${location}</h2>
+                                        <p>${weather.weatherDescription}</p>`
+  }
+}
+
+getLocationBtn.addEventListener("click", async ()=>{
+  try{
+  const position = await getLocation();
+  const location = await  showLocation(position);
+  if(location) {
+    const weather = await showWeather(location);
+   displayWeather(weather,location);
+  }
+  }
+  catch(error){
+    checkError(error);
+  }  
+});
+
 
 // Event listener to add a new task on button click
 addTaskBtn.addEventListener("click", addTask);
