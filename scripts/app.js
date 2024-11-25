@@ -249,7 +249,7 @@ function displayWeather(weather, location){
     displayWeatherContainer.innerHTML = `<p>Weather Data is not Avaliable</p>`
                                        
   }else{
-    displayWeatherContainer.innerHTML = ` <p>${weather.weatherIcon}</p>
+    displayWeatherContainer.innerHTML = `<img src="http://openweathermap.org/img/wn/${weather.weatherIcon}@2x.png" alt="Weather Icon">
                                         <h2>${location}</h2>
                                         <p>${weather.weatherDescription}</p>`
   }
