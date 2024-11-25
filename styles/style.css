@@ -1,5 +1,238 @@
-.complete {
-    text-decoration: line-through;
-    color: gray;
+/* Global Styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f0f2f5;
+  color: #333;
+  line-height: 1.6;
+}
+
+h1, h2, h3 {
+  text-align: center;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+h1 {
+  font-size: 2.5rem;
+  color: #34495e;
+  margin-top: 30px;
+}
+
+h2, h3 {
+  color: #2c3e50;
+}
+
+/* Weather Section */
+#weather {
+  background-color: #3498db;
+  color: white;
+  padding: 20px;
+  border-radius: 8px;
+  margin: 20px auto;
+  max-width: 800px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+#weather button {
+  background-color: #2980b9;
+  border: none;
+  color: white;
+  padding: 12px 24px;
+  font-size: 18px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#weather button:hover {
+  background-color: #1f6f8b;
+}
+
+#weather-info {
+  margin-top: 20px;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+#error {
+  color: #e74c3c;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+/* To-Do List Section */
+#todo {
+  margin: 30px auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 80%;
+  max-width: 600px;
+}
+
+#task-input {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+#task-input input {
+  width: 48%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+#task-input input:focus {
+  border-color: #3498db;
+}
+
+#task-input button {
+  background-color: #2ecc71;
+  border: none;
+  color: white;
+  padding: 12px 24px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#task-input button:hover {
+  background-color: #27ae60;
+}
+
+#task-list {
+  margin-top: 20px;
+}
+
+#tasks {
+  list-style: none;
+  padding: 0;
+}
+
+/* Grid Layout for Task Items */
+#tasks li {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  grid-gap: 15px;
+  align-items: center;
+  background-color: #ecf0f1;
+  padding: 15px;
+  margin: 8px 0;
+  border-radius: 5px;
+  font-size: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+#tasks li:hover {
+  background-color: #dfe6e9;
+  transform: translateX(10px);
+}
+
+/* Category Styles (Personal, Work) */
+#tasks li.personal {
+  border: 2px solid #f39c12;
+}
+
+#tasks li.work {
+  border: 2px solid #e67e22;
+}
+
+/* Completed Task (Finished) */
+#tasks li.complete {
+  background-color: #bdc3c7;
+  color: #7f8c8d;
+  text-decoration: line-through;
+}
+
+/* Finished Button Styles */
+#tasks li.complete .task-finish-btn {
+  background-color: #bdc3c7;
+  cursor: not-allowed;
+}
+
+/* Task Buttons (Complete/Delete) */
+#tasks button {
+  padding: 6px 12px;
+  background-color: #e74c3c;
+  border: none;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+#tasks button:hover {
+  background-color: #c0392b;
+}
+
+#tasks .task-complete-btn {
+  background-color: #2ecc71;
+}
+
+#tasks .task-complete-btn:hover {
+  background-color: #27ae60;
+}
+
+#tasks .task-delete-btn {
+  background-color: #e74c3c;
+}
+
+#tasks .task-delete-btn:hover {
+  background-color: #c0392b;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  #task-input {
+      flex-direction: column;
+      align-items: stretch;
   }
-  
+
+  #task-input input {
+      width: 100%;
+      margin-bottom: 10px;
+  }
+
+  #task-input button {
+      width: 100%;
+  }
+
+  #todo {
+      width: 90%;
+  }
+
+  #tasks li {
+      grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+      font-size: 2rem;
+  }
+
+  #weather, #todo {
+      margin: 15px;
+      padding: 15px;
+  }
+
+  #task-input input, #task-input button {
+      font-size: 14px;
+  }
+}
