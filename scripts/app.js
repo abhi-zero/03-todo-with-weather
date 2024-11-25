@@ -196,9 +196,8 @@ async function showLocation(position) {
     }
     const result = await response.json();
 
-    console.log(result)
     const userLocation = result.results[0].components.state_district; ; 
-    console.log(userLocation);
+ 
     
     return userLocation;
   }
